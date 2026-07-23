@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Brick Breaker Unblocked free online. Break all the bricks with your ball and paddle. No download needed, works on any browser.">
+    <title>Brick Breaker Unblocked - Play Free Online | Unblocked G+</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; }
+        header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 16px 20px; text-align: center; border-bottom: 2px solid #e94560; }
+        header h1 { font-size: 1.6rem; color: #e94560; }
+        header p { color: #a0a0b0; font-size: 0.85rem; margin-top: 4px; }
+        .game-wrap { text-align: center; padding: 20px 16px 0; }
+        canvas { background: #1a1a2e; border: 2px solid #e94560; border-radius: 8px; cursor: none; display: block; margin: 0 auto; max-width: 100%; }
+        .score-row { display: flex; justify-content: center; gap: 40px; margin: 10px 0; font-size: 1rem; color: #a0a0b0; }
+        .score-row span { color: #e94560; font-weight: bold; font-size: 1.1rem; }
+        article { max-width: 760px; margin: 24px auto 0; padding: 0 16px; }
+        .article-box { background: #1a1a2e; border-radius: 12px; padding: 26px; border: 1px solid #2a2a4a; }
+        .article-box h2 { color: #e94560; font-size: 1.2rem; margin-bottom: 10px; }
+        .article-box h3 { color: #c0c0d0; font-size: 0.95rem; margin: 14px 0 5px; }
+        .article-box p { color: #b0b0c0; line-height: 1.75; font-size: 0.9rem; margin-bottom: 8px; }
+        .article-box a { color: #e94560; font-weight: bold; text-decoration: none; }
+        .more-games { background: #1a1a2e; padding: 16px; margin: 16px auto 40px; max-width: 760px; border-radius: 10px; text-align: center; border: 1px solid #2a2a4a; }
+        .more-games p { color: #888; margin-bottom: 10px; font-size: 0.85rem; }
+        .more-games a { display: inline-block; margin: 4px; padding: 7px 14px; background: #2d3436; color: #e0e0e0; text-decoration: none; border-radius: 5px; font-size: 0.85rem; }
+        .more-games a.home { background: #e94560; }
+        footer { text-align: center; padding: 16px; color: #555; font-size: 0.8rem; border-top: 1px solid #2a2a4a; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Brick Breaker Unblocked</h1>
+    <p>Break every brick — don't let the ball fall</p>
+</header>
+<div class="game-wrap">
+    <div class="score-row">
+        <div>Score: <span id="scoreVal">0</span></div>
+        <div>Level: <span id="levelVal">1</span></div>
+        <div>Lives: <span id="livesVal">3</span></div>
+    </div>
+    <canvas id="gameCanvas" width="480" height="520"></canvas>
+    <p style="color:#666;font-size:0.8rem;margin-top:8px;">Move mouse to control paddle · Click to launch ball</p>
+</div>
+
+<div class="more-games">
+    <p>More Games</p>
+    <a href="https://gplus-master-list.github.io/" class="home">🏠 Home</a>
+    <a href="https://gplus-master-list.github.io/bad-ice-cream/">Bad Ice Cream</a>
+    <a href="https://gplus-master-list.github.io/Bubble-Shooter-Unblocked/">Bubble Shooter</a>
+    <p style="margin-top:12px;font-size:0.8rem;">Looking for more? Visit <a href="https://unblockedgamesgplus.games/">unblocked g+</a> for the full collection.</p>
+</div>
+
+<article>
+    <div class="article-box">
+        <h2>About Brick Breaker Unblocked</h2>
+        <p>Brick Breaker Unblocked is a classic arcade game where your goal is simple: destroy every brick on the screen before the ball falls past your paddle. Move the paddle left and right using your mouse to keep the ball in play. Each brick you hit adds to your score, and clearing the entire board moves you to the next level where bricks come back faster and in tighter patterns.</p>
+        <p>The game runs entirely in your browser with no downloads or plugins required. It works on school Chromebooks, laptops, and desktop PCs equally well, making it one of the best options when you want a quick unblocked game during a free period.</p>
+        <h3>How to Play</h3>
+        <p>Move your mouse to slide the paddle along the bottom of the screen. Click to launch the ball. It bounces off walls, ceiling, and bricks. Keep it from reaching the bottom — you have 3 lives. Clear all bricks to reach the next level.</p>
+        <h3>Tips to Score Higher</h3>
+        <p><strong>Aim for top rows first.</strong> Try to angle shots upward so the ball bounces around the top half and clears multiple rows at once.</p>
+        <p><strong>Use the edges.</strong> When the ball travels along the side wall it can take out an entire column rapidly.</p>
+        <p><strong>Stay centered.</strong> Keep the paddle near the center by default — moving from center to either edge is faster than crossing the full width.</p>
+        <h3>FAQ</h3>
+        <p><strong>Does the game get harder over time?</strong><br>Yes — each level adds more rows and increases ball speed, so later levels need faster reactions.</p>
+        <p><strong>Where can I play more games like this?</strong><br>The full collection is at <a href="https://unblockedgamesgplus.games/">unblocked g+</a> — hundreds of free browser titles, nothing to install.</p>
+    </div>
+</article>
+
+<footer>Brick Breaker Unblocked — free browser game, no download required</footer>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+let score = 0, level = 1, lives = 3;
+let gameActive = false, gameStarted = false;
+const paddleH = 12, paddleW = 90;
+let paddleX = (canvas.width - paddleW) / 2;
+const ballR = 8;
+let ballX, ballY, ballDX, ballDY, ballSpeed;
+const brickRows = 5, brickCols = 8;
+const brickW = 52, brickH = 18, brickPad = 6;
+const brickOffX = 14, brickOffY = 40;
+let bricks = [];
+const COLORS = ["#e94560","#e67e22","#f1c40f","#2ecc71","#3498db"];
+
+function initBall() {
+    ballX = canvas.width / 2;
+    ballY = canvas.height - 80;
+    ballSpeed = 4 + (level - 1) * 0.5;
+    ballDX = ballSpeed * (Math.random() > 0.5 ? 1 : -1);
+    ballDY = -ballSpeed;
+}
+
+function initBricks() {
+    bricks = [];
+    for (let r = 0; r < brickRows; r++) {
+        bricks[r] = [];
+        for (let c = 0; c < brickCols; c++) {
+            bricks[r][c] = { alive: true, color: COLORS[r % COLORS.length] };
+        }
+    }
+}
+
+function init() {
+    score = 0; level = 1; lives = 3;
+    updateUI(); initBricks(); initBall();
+    paddleX = (canvas.width - paddleW) / 2;
+    gameActive = true; gameStarted = false;
+    draw();
+}
+
+function updateUI() {
+    document.getElementById("scoreVal").innerText = score;
+    document.getElementById("levelVal").innerText = level;
+    document.getElementById("livesVal").innerText = lives;
+}
+
+canvas.addEventListener("mousemove", e => {
+    let rect = canvas.getBoundingClientRect();
+    let scaleX = canvas.width / rect.width;
+    let mx = (e.clientX - rect.left) * scaleX;
+    paddleX = mx - paddleW / 2;
+    if (paddleX < 0) paddleX = 0;
+    if (paddleX > canvas.width - paddleW) paddleX = canvas.width - paddleW;
+    if (!gameStarted && gameActive) ballX = paddleX + paddleW / 2;
+});
+
+canvas.addEventListener("click", () => {
+    if (!gameActive) { init(); return; }
+    if (!gameStarted) { gameStarted = true; loop(); }
+});
+
+function drawBricks() {
+    for (let r = 0; r < brickRows; r++) {
+        for (let c = 0; c < brickCols; c++) {
+            if (!bricks[r][c].alive) continue;
+            let bx = c * (brickW + brickPad) + brickOffX;
+            let by = r * (brickH + brickPad) + brickOffY;
+            ctx.fillStyle = bricks[r][c].color;
+            ctx.beginPath();
+            ctx.roundRect(bx, by, brickW, brickH, 4);
+            ctx.fill();
+        }
+    }
+}
+
+function drawPaddle() {
+    ctx.fillStyle = "#e94560";
+    ctx.beginPath();
+    ctx.roundRect(paddleX, canvas.height - paddleH - 10, paddleW, paddleH, 6);
+    ctx.fill();
+}
+
+function drawBall() {
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, ballR, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawOverlay(line1, line2) {
+    ctx.fillStyle = "rgba(0,0,0,0.75)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#e94560";
+    ctx.font = "bold 28px Segoe UI";
+    ctx.textAlign = "center";
+    ctx.fillText(line1, canvas.width/2, canvas.height/2 - 20);
+    ctx.fillStyle = "#ccc";
+    ctx.font = "16px Segoe UI";
+    ctx.fillText(line2, canvas.width/2, canvas.height/2 + 16);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBricks(); drawPaddle(); drawBall();
+    if (!gameStarted && gameActive) drawOverlay("Click to Launch", "Move mouse to control paddle");
+}
+
+function checkBrickCollision() {
+    for (let r = 0; r < brickRows; r++) {
+        for (let c = 0; c < brickCols; c++) {
+            if (!bricks[r][c].alive) continue;
+            let bx = c * (brickW + brickPad) + brickOffX;
+            let by = r * (brickH + brickPad) + brickOffY;
+            if (ballX+ballR > bx && ballX-ballR < bx+brickW && ballY+ballR > by && ballY-ballR < by+brickH) {
+                bricks[r][c].alive = false;
+                ballDY *= -1;
+                score += 10;
+                updateUI();
+                return;
+            }
+        }
+    }
+}
+
+function allCleared() { return bricks.every(row => row.every(b => !b.alive)); }
+
+function loop() {
+    if (!gameActive || !gameStarted) return;
+    ballX += ballDX; ballY += ballDY;
+    if (ballX+ballR > canvas.width || ballX-ballR < 0) ballDX *= -1;
+    if (ballY-ballR < 0) ballDY *= -1;
+    let py = canvas.height - paddleH - 10;
+    if (ballY+ballR > py && ballY+ballR < py+paddleH+10 && ballX > paddleX && ballX < paddleX+paddleW) {
+        let hit = (ballX - (paddleX + paddleW/2)) / (paddleW/2);
+        ballDX = ballSpeed * hit * 1.2;
+        ballDY = -Math.abs(ballDY);
+    }
+    if (ballY+ballR > canvas.height) {
+        lives--; updateUI();
+        if (lives <= 0) {
+            gameActive = false;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            drawBricks(); drawPaddle();
+            drawOverlay("GAME OVER", "Score: " + score + " — Click to restart");
+            return;
+        }
+        gameStarted = false; initBall(); draw(); return;
+    }
+    checkBrickCollision();
+    if (allCleared()) {
+        level++; updateUI(); initBricks(); gameStarted = false; initBall(); draw(); return;
+    }
+    draw();
+    requestAnimationFrame(loop);
+}
+
+init();
+</script>
+</body>
+</html>
