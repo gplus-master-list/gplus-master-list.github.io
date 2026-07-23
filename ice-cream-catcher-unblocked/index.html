@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="2eNFLIQMT86UkIoVAtLKteWotAvscZi5kR8LIp6G4OQ" />
+    <meta name="description" content="Play Ice Cream Catcher online for free. Catch falling ice cream scoops, beat your high score, and learn tips to survive longer in this fast browser game.">
+    <title>Ice Cream Catcher - Free Online Browser Game | Classroom 6x Edition</title>
+   <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
+    .game-container { text-align: center; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px; position: relative; }
+    canvas { background: #1a1a1a; display: block; margin: 10px auto; border-radius: 8px; cursor: crosshair; max-width: 100%; }
+    .article-section { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left; }
+    .article-section a { color: #3498db; text-decoration: underline; font-weight: bold; }
+    h1, h2, h3 { color: #2c3e50; }
+    .score-board { font-size: 24px; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
+    .faq-item { margin-bottom: 15px; }
+    .faq-item strong { display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Ice Cream Catcher</h1>
+        <div class="score-board">Score: <span id="scoreVal">0</span></div>
+        <canvas id="gameCanvas" width="400" height="500"></canvas>
+        <p>Use your mouse to catch the falling treats!</p>
+        <a href="https://classrooms-6x.com/" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#3498db; color:#fff; text-decoration:none; border-radius:5px; font-weight:bold;">Play more games here</a>
+    </div>
+
+    <div class="article-section">
+        <h2>About Ice Cream Catcher</h2>
+        <p>Ice Cream Catcher is a simple reflex game built around one rule: nothing hits the floor. Pink scoops of ice cream fall from the top of the screen at random positions and increasing speeds, and your only tool is a blue paddle controlled by your mouse. Catch a scoop and your score goes up by one. Miss a single scoop and the run is over. There are no levels, no power-ups, and no second chances, which is exactly what makes chasing a high score so addictive.</p>
+
+        <h2>How to Play</h2>
+        <ul>
+            <li>Move your mouse left and right to slide the paddle along the bottom of the screen.</li>
+            <li>Position the paddle under each falling scoop before it reaches the bottom edge.</li>
+            <li>Every catch adds one point to your score.</li>
+            <li>One missed scoop ends the game. Click the canvas to restart instantly.</li>
+        </ul>
+
+        <h2>Tips to Get a Higher Score</h2>
+        <h3>1. Park in the center, not the corners</h3>
+        <p>Scoops spawn at random positions across the full width of the screen. If your paddle sits in a corner, the farthest possible scoop is a full screen-width away. From the center, the farthest scoop is only half a screen away. Return to the middle after every catch and you will rarely be caught out of position.</p>
+
+        <h3>2. Watch the spawn point, not the ball</h3>
+        <p>Each scoop falls straight down with no drift, so its landing spot is decided the moment it appears. Glance at the top of the screen, note the x-position, and move immediately. Players who stare at the ball itself react a half-second later, and at higher speeds that half-second is the difference between a catch and a game over.</p>
+
+        <h3>3. Use small corrections late in the drop</h3>
+        <p>The paddle is 70 pixels wide, so you do not need a perfect center catch. Get roughly under the scoop early, then make a small adjustment in the last moment. Overcorrecting with big mouse swings is the most common way players sail past a scoop they were already lined up for.</p>
+
+        <h3>4. Expect overlapping drops past 20 points</h3>
+        <p>Scoops spawn on a fixed timer, but their fall speeds vary. That means a slow scoop and a fast scoop can arrive near the bottom at almost the same time. When you see two scoops in the air, always prioritize the one that will land first, even if the other is closer to your paddle.</p>
+
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <strong>Does the game get faster over time?</strong>
+            Each scoop has a randomized speed, so some fall noticeably faster than others. Long runs feel harder mainly because more scoops are on screen at once.
+        </div>
+        <div class="faq-item">
+            <strong>Can I play on a touchscreen?</strong>
+            The paddle follows mouse movement, so it works best on a laptop or desktop with a mouse or trackpad.
+        </div>
+        <div class="faq-item">
+            <strong>Where can I find more games like this?</strong>
+            This edition was made for <a href="https://classrooms-6x.com/">classroom 6x</a>, a collection of free browser games that run directly in your browser with nothing to download or install. The Classroom 6x website has plenty of similar quick-reflex arcade games if you enjoyed this one.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("scoreVal");
+
+        let score = 0;
+        let playerX = 175;
+        let items = [];
+        let gameActive = true;
+
+        document.addEventListener("mousemove", (e) => {
+            if (!gameActive) return;
+            let rect = canvas.getBoundingClientRect();
+            playerX = e.clientX - rect.left - 35;
+            if (playerX < 0) playerX = 0;
+            if (playerX > 330) playerX = 330;
+        });
+
+        function spawnItem() {
+            if (!gameActive) return;
+            items.push({
+                x: Math.random() * 370 + 15,
+                y: 0,
+                speed: 3 + Math.random() * 2
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Player
+            ctx.fillStyle = "#3498db";
+            ctx.fillRect(playerX, 470, 70, 15);
+
+            // Draw Items
+            for (let i = 0; i < items.length; i++) {
+                let it = items[i];
+                it.y += it.speed;
+
+                ctx.fillStyle = "#ff7675";
+                ctx.beginPath();
+                ctx.arc(it.x, it.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Collision detection
+                if (it.y > 470 && it.y < 485 && it.x > playerX && it.x < playerX + 70) {
+                    score++;
+                    scoreElement.innerText = score;
+                    items.splice(i, 1);
+                    i--;
+                } 
+                // Game over: ball fell below the paddle
+                else if (it.y > 500) {
+                    gameActive = false;
+                    showGameOver();
+                }
+            }
+
+            if (gameActive) {
+                requestAnimationFrame(draw);
+            }
+        }
+
+        function showGameOver() {
+            ctx.fillStyle = "rgba(0,0,0,0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.font = "30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("GAME OVER", 200, 230);
+            ctx.font = "20px Arial";
+            ctx.fillText("Final Score: " + score, 200, 270);
+            ctx.fillText("Click to Restart", 200, 310);
+        }
+
+        canvas.addEventListener("click", () => {
+            if (!gameActive) {
+                score = 0;
+                scoreElement.innerText = score;
+                items = [];
+                gameActive = true;
+                draw();
+            }
+        });
+
+        setInterval(spawnItem, 1000);
+        draw();
+    </script>
+<div style="background:#f0f0f0;padding:20px;margin-top:20px;border-radius:8px;text-align:center;"><p style="color:#555;margin-bottom:10px;">More Games You May Like</p><a href="https://gplus-master-list.github.io/" style="display:inline-block;margin:5px;padding:8px 16px;background:#3498db;color:#fff;text-decoration:none;border-radius:5px;">🏠 Home</a><a href="https://gplus-master-list.github.io/bad-ice-cream/" style="display:inline-block;margin:5px;padding:8px 16px;background:#2d3436;color:#fff;text-decoration:none;border-radius:5px;">Bad Ice Cream</a><a href="https://gplus-master-list.github.io/Bubble-Shooter-Unblocked/" style="display:inline-block;margin:5px;padding:8px 16px;background:#2d3436;color:#fff;text-decoration:none;border-radius:5px;">Bubble Shooter</a></div></body>
+</html>
