@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High-Speed Heist: Classroom 7x Action</title>
+    <style>
+        body { margin: 0; background: #1a1a1a; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; overflow-x: hidden; }
+        
+        /* Game Container - Made Larger */
+        #game-container { position: relative; display: inline-block; margin: 20px auto; width: 95%; max-width: 600px; }
+        #gameCanvas { background: #333; display: block; border: 4px solid #555; touch-action: none; width: 100%; height: auto; cursor: pointer; border-radius: 8px; }
+        
+        .article-container { max-width: 800px; margin: 20px auto; padding: 20px; text-align: left; line-height: 1.6; background: #222; border-radius: 8px; }
+        h1, h2 { color: #ffcc00; }
+        h3 { color: #00ff00; }
+
+        /* Scoreboard */
+        .scoreboard { background: #000; padding: 15px; border: 2px solid #555; display: flex; justify-content: space-around; font-size: 22px; font-weight: bold; color: #00ff00; margin-bottom: 5px; border-radius: 8px 8px 0 0; }
+        
+        /* Overlay and Buttons */
+        #overlay { position: absolute; top: 55px; left: 0; width: 100%; height: calc(100% - 55px); background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; border-radius: 0 0 8px 8px; }
+        .game-btn { background: #ffcc00; color: #000; border: none; padding: 18px 45px; font-size: 26px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4); }
+        .game-btn:hover { transform: scale(1.1); background: #fff; }
+        
+        #pauseBtn { position: absolute; top: 65px; right: 15px; padding: 10px 20px; font-size: 14px; background: #444; color: white; border: 1px solid #777; border-radius: 5px; cursor: pointer; z-index: 5; opacity: 0.8; }
+        #pauseBtn:hover { opacity: 1; background: #666; }
+
+        /* CTA Section */
+        .cta-box { border: 2px dashed #4caf50; border-radius: 20px; padding: 25px; margin: 20px auto; max-width: 700px; background: #222; text-align: center; }
+        .cta-btn { background-color: #4caf50; color: white; padding: 15px 35px; text-decoration: none; border-radius: 40px; font-size: 22px; font-weight: bold; display: inline-block; transition: 0.3s; }
+        a { color: #4caf50; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="scoreboard">
+            <div>Score: <span id="score">0</span></div>
+            <div>Best: <span id="highScore">0</span></div>
+        </div>
+        
+        <button id="pauseBtn" style="display:none;">PAUSE</button>
+        
+        <div id="overlay">
+            <h2 id="msg" style="color:#ffcc00; font-size: 40px; margin-bottom: 20px;">READY?</h2>
+            <button class="game-btn" id="startBtn">START GAME</button>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="cta-box">
+        <div class="cta-text" style="font-size: 18px; margin-bottom: 15px; font-weight: bold;">🚀 Want to Play More Awesome Games?</div>
+        <p>We have a huge list of unblocked games waiting for you!</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span>👉</span>
+            <a href="https://www.classroom-7x.com/" class="cta-btn">Play More classroom Games Here</a>
+            <span>👈</span>
+        </div>
+    </div>
+
+    <div class="article-container">
+        <h1>High-Speed Heist: The Ultimate Chase</h1>
+        <h3>About This Game</h3>
+        <p>
+            High-Speed Heist is a fast-paced action game where you play as a driver trying to escape a busy city. After a big bank job, the police are on your tail, and you must weave through traffic to stay free.
+        </p>
+
+        <hr style="border: 0.5px solid #444; margin: 30px 0;">
+
+        <h2>Why You Should Play Unblocked Games</h2>
+        <p>
+            Let's be honest, school and office breaks can be super boring. Sometimes you just want to play a quick game to refresh your mind. But most fun sites are usually blocked by the network. That is where <a href="https://www.classroom-7x.com/"><strong>Classroom 7x</strong></a> comes to the rescue!
+        </p>
+        <p>
+            I personally love playing games on Classroom 7x because they load fast and you don't need a high-end PC. Whether you like racing or sports unblocked games, it’s all there. 
+        </p>
+        <p>
+            This <strong>High-Speed Heist</strong> game is a great example of the simple yet addictive games you can find. It’s all about focus and quick reflexes. If you enjoy this type of action, you should definitely check out more unblocked games on the web. It's the perfect way to kill time safely and legally. Stay safe and keep gaming!
+        </p>
+    </div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+    const highElement = document.getElementById("highScore");
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const msg = document.getElementById("msg");
+
+    // Adjusted for a bigger feel
+    canvas.width = 400; canvas.height = 600;
+    
+    let score = 0;
+    let highScore = localStorage.getItem("heistHigh") || 0;
+    let gameActive = false;
+    let isPaused = false;
+    highElement.innerText = highScore;
+
+    const player = { x: 175, y: 500, w: 50, h: 85, speed: 8 };
+    let enemies = [];
+    const keys = {};
+
+    function resetGame() {
+        score = 0;
+        scoreElement.innerText = "0";
+        enemies = [];
+        player.x = 175;
+        gameActive = true;
+        isPaused = false;
+        overlay.style.display = "none";
+        pauseBtn.style.display = "block";
+        pauseBtn.innerText = "PAUSE";
+        requestAnimationFrame(gameLoop);
+    }
+
+    startBtn.onclick = resetGame;
+    
+    pauseBtn.onclick = () => {
+        isPaused = !isPaused;
+        pauseBtn.innerText = isPaused ? "RESUME" : "PAUSE";
+        if(!isPaused) requestAnimationFrame(gameLoop);
+    };
+
+    window.addEventListener("keydown", (e) => {
+        keys[e.code] = true;
+        if(e.code === "KeyP" && gameActive) pauseBtn.click();
+    });
+    window.addEventListener("keyup", (e) => keys[e.code] = false);
+
+    canvas.addEventListener("touchstart", (e) => {
+        if(!gameActive || isPaused) return;
+        const rect = canvas.getBoundingClientRect();
+        const touchX = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+        if (touchX < canvas.width / 2) keys["ArrowLeft"] = true;
+        else keys["ArrowRight"] = true;
+    });
+    canvas.addEventListener("touchend", () => { keys["ArrowLeft"] = false; keys["ArrowRight"] = false; });
+
+    setInterval(() => {
+        if (gameActive && !isPaused) {
+            enemies.push({ 
+                x: Math.random() * (canvas.width - 50), 
+                y: -100, 
+                w: 48, 
+                h: 80, 
+                speed: 5 + (score / 400) 
+            });
+        }
+    }, 900);
+
+    function gameLoop() {
+        if (!gameActive || isPaused) return;
+
+        // Road drawing
+        ctx.fillStyle = "#333"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,0.6)"; ctx.setLineDash([30, 30]); ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(canvas.width/2, 0); ctx.lineTo(canvas.width/2, canvas.height); ctx.stroke();
+
+        if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+        if (keys["ArrowRight"] && player.x < canvas.width - player.w) player.x += player.speed;
+
+        // Player Car
+        ctx.fillStyle = "#00acee"; ctx.shadowBlur = 10; ctx.shadowColor = "#00acee";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.shadowBlur = 0;
+
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            let enemy = enemies[i];
+            enemy.y += enemy.speed;
+            
+            // Enemy Car
+            ctx.fillStyle = "#ff4444"; ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+
+            if (player.x < enemy.x + enemy.w && player.x + player.w > enemy.x &&
+                player.y < enemy.y + enemy.h && player.y + player.h > enemy.y) {
+                endGame();
+            }
+
+            if (enemy.y > canvas.height) {
+                enemies.splice(i, 1);
+                score += 10;
+                scoreElement.innerText = score;
+                if(score > highScore) {
+                    highScore = score;
+                    highElement.innerText = highScore;
+                    localStorage.setItem("heistHigh", highScore);
+                }
+            }
+        }
+        requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+        gameActive = false;
+        pauseBtn.style.display = "none";
+        overlay.style.display = "flex";
+        msg.innerText = "BUSTED! SCORE: " + score;
+        startBtn.innerText = "RETRY CHASE";
+    }
+</script>
+<div style="background:#1a1a2e;padding:20px;margin:20px auto;border-radius:8px;text-align:center;max-width:860px;"><p style="color:#aaa;margin-bottom:10px;font-size:0.9rem;">More Games You May Like</p><a href="https://gplus-master-list.github.io/" style="display:inline-block;margin:5px;padding:8px 16px;background:#e94560;color:#fff;text-decoration:none;border-radius:5px;">🏠 Home</a><a href="https://gplus-master-list.github.io/ice-cream-catcher-unblocked/" style="display:inline-block;margin:5px;padding:8px 16px;background:#2d3436;color:#fff;text-decoration:none;border-radius:5px;">Ice Cream Catcher</a><a href="https://gplus-master-list.github.io/lows-adventure-3-unblocked/" style="display:inline-block;margin:5px;padding:8px 16px;background:#2d3436;color:#fff;text-decoration:none;border-radius:5px;">Lows Adventure 3</a><p style="color:#777;margin-top:12px;font-size:0.85rem;">For more free browser games visit <a href="https://classrooms-6x.com/" style="color:#e94560;">classroom 6x</a>.</p></div></body>
+</html>
